@@ -10,7 +10,7 @@ class UsersController {
 
     const user = await usersService.create(email)
 
-    return response.status(200).json(user)
+    return response.json(user)
   }
 }
 
