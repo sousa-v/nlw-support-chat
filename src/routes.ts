@@ -10,7 +10,9 @@ const settigsController = new SettingsController()
 const usersController = new UsersController()
 const messagesController = new MessagesController
 
+routes.get("/settings/:username", settigsController.findByUsername)
 routes.post("/settings", settigsController.handle)
+routes.put("/settings/:username", settigsController.update)
 
 routes.post("/users", usersController.handle)
 
