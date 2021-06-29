@@ -11,7 +11,10 @@ const usersController = new UsersController()
 const messagesController = new MessagesController
 
 routes.post("/settings", settigsController.handle)
+
 routes.post("/users", usersController.handle)
+
+routes.get("/messages/:id", messagesController.showByUser)
 routes.post("/messages", messagesController.handle)
 
 

@@ -10,15 +10,15 @@ class Message {
   @Column()
   admin_id: string
 
+  @Column()
+  text: string
+
   @JoinColumn({ name: "user_id" })
   @ManyToOne(() => User)
   user = User
 
   @Column()
   user_id: string
-
-  @Column()
-  text: string
 
   @CreateDateColumn()
   created_at: Date
