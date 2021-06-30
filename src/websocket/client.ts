@@ -20,7 +20,7 @@ io.on("connect", (socket) => {
 
     const userExists = await usersService.findByEmail(email)
 
-    if(!userExists) {
+    if (!userExists) {
       const user = await usersService.create(email)
 
       await connectionsService.create({
@@ -29,24 +29,58 @@ io.on("connect", (socket) => {
       })
 
       user_id = user.id
-    }else {
+    } else {
       user_id = userExists.id
+
       const connection = await connectionsService.findByUserId(userExists.id)
 
-      if(!connection) {
+      if (!connection) {
         await connectionsService.create({
           socket_id,
           user_id: userExists.id,
         })
-      }else {
-        connection.socket_id = socket.id
+      } else {
+        connection.socket_id = socket_id
+
         await connectionsService.create(connection)
       }
     }
 
     await messagesService.create({
       text,
-      user_id
+      user_id,
     })
+
+    const allMessages = await messagesService.listByUser(user_id)
+
+    socket.emit("client_list_all_messages", allMessages)
+
+    const allUsers = await connectionsService.findAllWithoutAdmin()
+    io.emit("admin_list_all_users", allUsers)
   })
-}) 
+
+  socket.on("client_send_to_admin", async (params) => {
+    const { text, socket_admin_id } = params
+
+    const socket_id = socket.id
+
+    const { user_id } = await connectionsService.findBySocketID(socket_id)
+
+    const message = await messagesService.create({
+      text,
+      user_id,
+    })
+
+    io.to(socket_admin_id).emit("admin_receive_message", {
+      message,
+      socket_id,
+    })
+
+    // Melhorias
+  })
+
+  socket.on("disconnect", async () => {
+    console.log(socket.id)
+    await connectionsService.deleteBySocketId(socket.id)
+  })
+})
